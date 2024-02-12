@@ -1,13 +1,13 @@
-import org.jetbrains.intellij.tasks.RunPluginVerifierTask
+import java.time.OffsetDateTime
 
 plugins {
   id("java")
-  id("org.jetbrains.intellij") version "1.13.3"
-  id("com.github.ben-manes.versions") version "0.46.0"
+  id("org.jetbrains.intellij") version "1.16.0"
+  id("com.github.ben-manes.versions") version "0.49.0"
 }
 
-group = "com.hiberbee.intellij"
-version = System.getenv("APP_VERSION") ?: "2023.3.30.121"
+group = "com.hiberbee"
+version = System.getenv("APP_VERSION") ?: OffsetDateTime.now().format("YYYY.M.d.Hm")
 
 repositories {
   mavenCentral()
@@ -15,28 +15,33 @@ repositories {
 
 intellij {
   pluginName ="Hiberbee Theme"
-  type = "IC"
+  type = "IU"
   version = "LATEST-EAP-SNAPSHOT"
+  updateSinceUntilBuild = true
 }
 
 java {
-  sourceCompatibility = "17"
-  targetCompatibility = "17"
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
 }
 
 buildSearchableOptions {
   enabled = false
 }
 
-runPluginVerifier {
-  failureLevel = [RunPluginVerifierTask.FailureLevel.COMPATIBILITY_PROBLEMS, RunPluginVerifierTask.FailureLevel.INVALID_PLUGIN]
-}
-
 publishPlugin {
   setToken(System.getenv("JETBRAINS_TOKEN"))
 }
 
+runIdePerformanceTest {
+ testDataDir = rootProject.files("src/test/java").getAsPath()
+}
+
 patchPluginXml {
-  changeNotes = """Compatibility fixes related to new UI changes in 2023.1."""
+  changeNotes = """
+- Fixed mess up around color scheme provided (#108)
+"""
   version = project.version
+  sinceBuild = "191.*"
+  untilBuild = "234.*"
 }
